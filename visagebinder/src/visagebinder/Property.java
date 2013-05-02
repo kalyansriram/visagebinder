@@ -3,7 +3,27 @@ package visagebinder;
 public class Property {
    String propertyName;
    String propertyType;
-  
+   String defaultValue;
+   String className;
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+   
+    
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+           
+   
 
     public void setPropertyType(String propertyType) {
         this.propertyType = propertyType;
@@ -26,8 +46,8 @@ public class Property {
         String propertyvalue=null;
         
         propertyvalue = "public var " + propertyName + ":" + propertyType + " on replace{\n" +
-"        if(isInitialized(this) or " + propertyName + " !=null){\n" +
-"            wrappedDropShadow.set"+indexUpperCase(propertyName)+"(" + propertyName +");\n" +
+"        if(isInitialized(this) or " + propertyName + " !="+defaultValue + "){\n" +
+"            wrapped"+className+".set"+indexUpperCase(propertyName)+"(" + propertyName +");\n" +
 "        }\n" +
 "}";
         

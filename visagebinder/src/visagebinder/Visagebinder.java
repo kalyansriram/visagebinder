@@ -3,7 +3,10 @@ package visagebinder;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -30,19 +33,18 @@ public class Visagebinder {
             while((className=b.readLine())!=null)
             {
             c= Class.forName(className);
-            //Class<?> c = DropShadow.class;
-            CustomClass customclass = new CustomClass();
-            customclass.setClassName(c.getSimpleName());
-            customclass.setPackageName(c.getPackage().getName());
-            customclass.setParentClass(c.getSuperclass().getSimpleName());
-
-            customclass.setPropertyList(new ArrayList<String>());
+            //CustomClass Contains whole blueprint of the Class
+            CustomClass customclass = new CustomClass(c.getSimpleName(),c.getPackage().getName(),c.getSuperclass().getSimpleName(),new ArrayList<String>());
             Field[] fields = c.getDeclaredFields();
+            //intialise all the fields to customclass
             initFields(fields, c, customclass);
-
             System.out.println(customclass);
-                Scanner s = new Scanner(System.in);
-                s.next();
+            File dir = new File(customclass.getPackageName().replace('.', '/'));
+            dir.mkdirs();
+            File f = new File(dir,customclass.getClassName()+".visage");
+                FileWriter fw = new FileWriter(f);
+                fw.write(customclass.toString());
+                fw.close();
             }
         } catch (IOException ex) {
             Logger.getLogger(Visagebinder.class.getName()).log(Level.SEVERE, null, ex);
@@ -57,6 +59,27 @@ public class Visagebinder {
             Property p = new Property();
             p.setPropertyName(field.getName());
             p.setPropertyType(field.getType().getSimpleName());
+            p.setClassName(c.getSimpleName());
+            //Skip Boolean Types
+            if (!field.getType().equals(boolean.class)) {
+                try {
+                    //create getter name
+                    String gettersName = p.getGettersName(p.getPropertyName());
+                    //Get Default Value by creating new object
+                    Method thisMethod = c.getDeclaredMethod(gettersName, null);
+                    Object defaultValue = thisMethod.invoke(c.cast(c.newInstance()), null);
+                    if (defaultValue == null)
+                        continue;
+                    p.setDefaultValue(defaultValue.toString());
+                    
+                } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException ex) {
+                   if(ex instanceof NoSuchMethodException)
+                    continue;
+                   else
+                       Logger.getLogger(Visagebinder.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
             customclass.getPropertyList().add(p.toString());
 
         }

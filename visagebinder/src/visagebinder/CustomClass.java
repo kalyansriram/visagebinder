@@ -1,5 +1,6 @@
 package visagebinder;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -9,6 +10,13 @@ public class CustomClass {
     String className;
     String parentClass;
     String packageName;
+
+    CustomClass(String className, String packageName, String parentClass, ArrayList<String> propertyList) {
+        this.className=className;
+        this.packageName=packageName;
+        this.parentClass=parentClass;
+        this.propertyList=propertyList;
+    }
 
     public String getClassName() {
         return className;
